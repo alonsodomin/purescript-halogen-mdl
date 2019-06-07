@@ -10,3 +10,4 @@
 /.cache
 package-lock.json
 *.log
+dist/

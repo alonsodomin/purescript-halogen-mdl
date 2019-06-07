@@ -9,7 +9,6 @@ import Effect (Effect)
 import Effect.Class (liftEffect)
 import Effect.Aff (Aff, launchAff_, forkAff)
 import Halogen as H
-import Halogen.Aff as HA
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
@@ -20,7 +19,8 @@ import Routing.Match (Match, lit)
 -- Routing logic
 
 routeSignal :: H.HalogenIO Query Void Aff -> Aff Unit
-routeSignal driver =
+routeSignal driver = do
+  driver.query $ H.action $ GoTo Home
   void $ forkAff <<< liftEffect $ matches matchRoute (goToRoute driver)
 
 matchRoute :: Match Route

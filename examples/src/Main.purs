@@ -4,7 +4,6 @@ import Prelude
 
 import Effect (Effect)
 import Effect.Aff (forkAff)
-import Effect.Class (liftEffect)
 import Halogen.Aff as HA
 import Halogen.VDom.Driver (runUI)
 
