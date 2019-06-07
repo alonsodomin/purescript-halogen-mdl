@@ -2,18 +2,15 @@ module DemoProgress where
 
 import Prelude
 
-import Control.Monad.Aff (Aff, delay)
---import Control.Monad.Eff.Timer (setInterval)
+import CSS as C
 import Data.Maybe (Maybe(..))
 import Data.Time.Duration (Milliseconds(..))
-
-import CSS as C
+import Effect.Aff (Aff, delay)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
-import Halogen.HTML.Properties as HP
 import Halogen.HTML.CSS as HC
-
+import Halogen.HTML.Properties as HP
 import Halogen.MDL as MDL
 import Halogen.MDL.Cell as Cell
 import Halogen.MDL.Grid as Grid
@@ -32,12 +29,12 @@ data Input
 type Message = Void
 
 type DemoProgressHTML = H.ComponentHTML Query
-type DemoProgressDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoProgressDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init = Initialize
 
-demoProgress :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoProgress :: H.Component HH.HTML Query Input Message Aff
 demoProgress = H.lifecycleComponent
   { initialState: initialState
   , initializer: initializer
@@ -87,10 +84,10 @@ demoProgress = H.lifecycleComponent
           ]
       ]
 
-  eval :: Query ~> DemoProgressDSL eff
+  eval :: Query ~> DemoProgressDSL
   eval = case _ of
     InitializeComponent next -> do
-      H.liftEff $ MDL.upgradeElementsByClassName Progress.cl.jsProgress
+      H.liftEffect $ MDL.upgradeElementsByClassName Progress.cl.jsProgress
       {-
       state <- H.modify (_ { progress = 10 })
       Progress.setProgressByRef progressRef 10

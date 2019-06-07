@@ -1,7 +1,7 @@
 module DemoBadges where
 
 import Prelude
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..))
 
 import Halogen as H
@@ -26,12 +26,12 @@ data Input = Initialize State
 type Message = Void
 
 type DemoBadgesHTML = H.ComponentHTML Query
-type DemoBadgesDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoBadgesDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init state = Initialize state
 
-demoBadges :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoBadges :: H.Component HH.HTML Query Input Message Aff
 demoBadges =
   H.lifecycleComponent
     { initialState: initialState
@@ -130,7 +130,7 @@ demoBadges =
   renderDemoSection :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
   renderDemoSection body = Cell.el.cell3Col_ body
 
-  eval :: Query ~> H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+  eval :: Query ~> H.ComponentDSL State Query Message Aff
   eval = case _ of
     InitializeComponent next -> pure next
     FinalizeComponent next -> pure next

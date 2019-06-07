@@ -2,7 +2,7 @@ module DemoSliders where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..))
 
 import Halogen as H
@@ -40,13 +40,13 @@ data ChildSlot
 derive instance eqChildSlot :: Eq ChildSlot
 derive instance ordChildSlot :: Ord ChildSlot
 
-type DemoSlidersHTML eff = H.ParentHTML Query Slider.Query ChildSlot (Aff (HA.HalogenEffects eff))
-type DemoSlidersDSL eff = H.ParentDSL State Query Slider.Query ChildSlot Message (Aff (HA.HalogenEffects eff))
+type DemoSlidersHTML = H.ParentHTML Query Slider.Query ChildSlot Aff
+type DemoSlidersDSL = H.ParentDSL State Query Slider.Query ChildSlot Message Aff
 
 init :: State -> Input
 init = Initialize
 
-demoSliders :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoSliders :: H.Component HH.HTML Query Input Message Aff
 demoSliders = H.lifecycleParentComponent
   { initialState: initialState
   , initializer: initializer
@@ -69,7 +69,7 @@ demoSliders = H.lifecycleParentComponent
   receiver :: Input -> Maybe (Query Unit)
   receiver (Initialize state) = Just $ H.action $ UpdateState state
 
-  render :: State -> DemoSlidersHTML eff
+  render :: State -> DemoSlidersHTML
   render state =
     Grid.el.grid_
       [ Cell.el.cell12Col_
@@ -104,7 +104,7 @@ demoSliders = H.lifecycleParentComponent
           [ HH.p_ [ HH.text $ "Slider value: " <> show state.slider3 ] ]
       ]
 
-  eval :: Query ~> DemoSlidersDSL eff
+  eval :: Query ~> DemoSlidersDSL
   eval = case _ of
     InitializeComponent next -> do
       -- Don't upgrade because we're using our component that fakes the structure
@@ -116,13 +116,13 @@ demoSliders = H.lifecycleParentComponent
       H.put state
       pure next
     OnSlider1Message (Slider.ValueChanged value) next -> do
-      H.modify (_ { slider1 = value })
+      H.modify_ (_ { slider1 = value })
       pure next
     OnSlider2Message (Slider.ValueChanged value) next -> do
-      H.modify (_ { slider2 = value })
+      H.modify_ (_ { slider2 = value })
       -- Set disabled slider 3 value to follow slider 2 value
       _ <- H.query Slider3Slot $ H.action (Slider.SetValue value)
       pure next
     OnSlider3Message (Slider.ValueChanged value) next -> do
-      H.modify (_ { slider3 = value })
+      H.modify_ (_ { slider3 = value })
       pure next

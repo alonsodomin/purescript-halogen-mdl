@@ -2,7 +2,7 @@ module DemoLists where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..))
 
 import Halogen as H
@@ -30,12 +30,12 @@ data Input = Initialize State
 type Message = Void
 
 type DemoListsHTML = H.ComponentHTML Query
-type DemoListsDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoListsDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init state = Initialize state
 
-demoLists :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoLists :: H.Component HH.HTML Query Input Message Aff
 demoLists =
   H.lifecycleComponent
     { initialState: initialState
@@ -122,7 +122,7 @@ demoLists =
 
     ]
 
-  eval :: Query ~> DemoListsDSL eff
+  eval :: Query ~> DemoListsDSL
   eval = case _ of
     InitializeComponent next -> do
       pure next

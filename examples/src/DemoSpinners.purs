@@ -2,7 +2,7 @@ module DemoSpinners where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..))
 
 import Halogen as H
@@ -28,12 +28,12 @@ data Input
 type Message = Void
 
 type DemoSpinnersHTML = H.ComponentHTML Query
-type DemoSpinnersDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoSpinnersDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init = Initialize
 
-demoSpinners :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoSpinners :: H.Component HH.HTML Query Input Message Aff
 demoSpinners = H.lifecycleComponent
   { initialState: initialState
   , initializer: initializer
@@ -73,10 +73,10 @@ demoSpinners = H.lifecycleComponent
           ]
       ]
 
-  eval :: Query ~> DemoSpinnersDSL eff
+  eval :: Query ~> DemoSpinnersDSL
   eval = case _ of
     InitializeComponent next -> do
-      H.liftEff $ MDL.upgradeElementsByClassName Spinner.cl.jsSpinner
+      H.liftEffect $ MDL.upgradeElementsByClassName Spinner.cl.jsSpinner
       pure next
     FinalizeComponent next -> do
       pure next

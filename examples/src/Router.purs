@@ -1,30 +1,27 @@
 module Router where
 
 import Prelude
+
 import Control.Alt ((<|>))
-import Control.Monad.Aff (Aff)
 import Data.Maybe (Maybe(..))
-import Data.Tuple (Tuple(..))
-
-import Routing (matchesAff)
-import Routing.Match (Match)
-import Routing.Match.Class (lit)
-
+import DemoContainer as DemoContainer
+import Effect (Effect)
+import Effect.Class (liftEffect)
+import Effect.Aff (Aff, launchAff_, forkAff)
 import Halogen as H
 import Halogen.Aff as HA
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-
 import Route (Route(..), urlSegment)
-import DemoContainer as DemoContainer
+import Routing.Hash (matches)
+import Routing.Match (Match, lit)
 
 -- Routing logic
 
-routeSignal :: ∀ eff. H.HalogenIO Query Void (Aff (HA.HalogenEffects eff)) -> Aff (HA.HalogenEffects eff) Unit
-routeSignal driver = do
-  Tuple old new <- matchesAff matchRoute
-  goToRoute driver old new
+routeSignal :: H.HalogenIO Query Void Aff -> Aff Unit
+routeSignal driver =
+  void $ forkAff <<< liftEffect $ matches matchRoute (goToRoute driver)
 
 matchRoute :: Match Route
 matchRoute
@@ -59,13 +56,12 @@ matchRoute
     home = Home <$ lit ""
     route str = lit "" *> lit str
 
-goToRoute :: ∀ eff
-  . H.HalogenIO Query Message (Aff (HA.HalogenEffects eff))
+goToRoute :: H.HalogenIO Query Message Aff
   -> Maybe Route
   -> Route
-  -> Aff (HA.HalogenEffects eff) Unit
+  -> Effect Unit
 goToRoute driver _ =
-  driver.query <<< H.action <<< GoTo
+  launchAff_ <<< driver.query <<< H.action <<< GoTo
 
 -- Router component
 
@@ -85,7 +81,7 @@ data Slot = DemoContainerSlot
 derive instance eqSlot :: Eq Slot
 derive instance ordSlot :: Ord Slot
 
-component :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+component :: H.Component HH.HTML Query Input Message Aff
 component = H.parentComponent
   { initialState: initialState
   , receiver: receiver
@@ -99,7 +95,7 @@ component = H.parentComponent
     receiver :: Input -> Maybe (Query Unit)
     receiver _ = Nothing
 
-    render :: State -> H.ParentHTML Query DemoContainer.Query Slot (Aff (HA.HalogenEffects eff))
+    render :: State -> H.ParentHTML Query DemoContainer.Query Slot Aff
     render state =
       HH.div
         [ HP.class_ $ HH.ClassName "root" ]
@@ -110,10 +106,10 @@ component = H.parentComponent
             (HE.input OnDemoContainerMessage)
         ]
 
-    eval :: Query ~> H.ParentDSL State Query DemoContainer.Query Slot Message (Aff (HA.HalogenEffects eff))
+    eval :: Query ~> H.ParentDSL State Query DemoContainer.Query Slot Message Aff
     eval = case _ of
       GoTo route next -> do
-        H.modify (_ { currentRoute = route })
+        H.modify_ (_ { currentRoute = route })
         pure next
 
       OnDemoContainerMessage message next -> do

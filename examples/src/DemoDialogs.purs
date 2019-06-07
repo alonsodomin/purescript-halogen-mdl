@@ -2,7 +2,7 @@ module DemoDialogs where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..))
 import Halogen as H
 import Halogen.Aff as HA
@@ -34,12 +34,12 @@ data Input = Initialize State
 type Message = Void
 
 type DemoDialogsHTML = H.ComponentHTML Query
-type DemoDialogsDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoDialogsDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init state = Initialize state
 
-demoDialogs :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoDialogs :: H.Component HH.HTML Query Input Message Aff
 demoDialogs =
   H.lifecycleComponent
     { initialState: initialState
@@ -121,7 +121,7 @@ demoDialogs =
         ]
     ]
 
-  eval :: Query ~> DemoDialogsDSL eff
+  eval :: Query ~> DemoDialogsDSL
   eval = case _ of
     InitializeComponent next -> do
       Dialog.registerDialogByRef dialogDemo1Ref

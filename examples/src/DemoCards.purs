@@ -4,7 +4,7 @@ import Prelude
 
 import CSS ((|>))
 import CSS as C
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..), fromMaybe)
 --import Unsafe.Partial (unsafePartial)
 
@@ -35,12 +35,12 @@ data Input = Initialize State
 type Message = Void
 
 type DemoCardsHTML = H.ComponentHTML Query
-type DemoCardsDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoCardsDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init state = Initialize state
 
-demoCards :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoCards :: H.Component HH.HTML Query Input Message Aff
 demoCards =
   H.lifecycleComponent
     { initialState: initialState
@@ -158,10 +158,10 @@ demoCards =
         ]
     ]
 
-  eval :: Query ~> DemoCardsDSL eff
+  eval :: Query ~> DemoCardsDSL
   eval = case _ of
     InitializeComponent next -> do
-      H.liftEff $ MDL.upgradeElementsByClassName Button.cl.jsButton
+      H.liftEffect $ MDL.upgradeElementsByClassName Button.cl.jsButton
       pure next
     FinalizeComponent next -> pure next
     UpdateState state next -> do

@@ -8,9 +8,10 @@
     "test": "test"
   },
   "scripts": {
-    "build": "npx -c 'spago build'",
-    "build:examples": "pulp build --src-path examples/src --include src --to examples/dist/app.js",
-    "watch:examples": "pulp --watch build --src-path examples/src --include src --to examples/dist/app.js"
+    "build": "spago build",
+    "build:examples": "spago bundle-app --path examples/src/*.purs --main Main --to examples/dist/app.js",
+    "watch:examples": "spago build --watch --path examples/src/**/*.purs",
+    "install": "spago install"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,8 @@
   "devDependencies": {
     "purescript": "^0.12.5",
     "purescript-psa": "^0.5.1",
-    "spago": "^0.8.3"
+    "spago": "^0.8.3",
+    "parcel-bundler": "^1.12.3",
+    "material-design-lite": "mdl#^1.3.0"
   }
 }

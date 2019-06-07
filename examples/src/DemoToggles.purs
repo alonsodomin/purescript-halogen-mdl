@@ -2,11 +2,11 @@ module DemoToggles where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..))
 
 import CSS as C
-import DOM.Event.Types (MouseEvent)
+import Web.UIEvent.MouseEvent (MouseEvent)
 
 import Halogen as H
 import Halogen.Aff as HA
@@ -44,7 +44,7 @@ data Input
 type Message = Void
 
 type DemoTogglesHTML = H.ComponentHTML Query
-type DemoTogglesDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoTogglesDSL = H.ComponentDSL State Query Message Aff
 
 init :: Input
 init = Initialize
@@ -55,7 +55,7 @@ init = Initialize
   , radio3Checked: false
   }
 
-demoToggles :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoToggles :: H.Component HH.HTML Query Input Message Aff
 demoToggles = H.lifecycleComponent
   { initialState: initialState
   , initializer: initializer
@@ -126,10 +126,10 @@ demoToggles = H.lifecycleComponent
           ]
       ]
 
-  eval :: Query ~> DemoTogglesDSL eff
+  eval :: Query ~> DemoTogglesDSL
   eval = case _ of
     InitializeComponent next -> do
-      H.liftEff $ MDL.upgradeElementsByClassNames [ Checkbox.cl.jsCheckbox, Radio.cl.jsRadio ]
+      H.liftEffect $ MDL.upgradeElementsByClassNames [ Checkbox.cl.jsCheckbox, Radio.cl.jsRadio ]
       pure next
     FinalizeComponent next -> do
       pure next
@@ -137,17 +137,17 @@ demoToggles = H.lifecycleComponent
       H.put state
       pure next
     OnCheckbox1Click event next -> do
-      H.modify (\state -> state { checkbox1Checked = not state.checkbox1Checked })
+      H.modify_ (\state -> state { checkbox1Checked = not state.checkbox1Checked })
       pure next
     OnCheckbox2Click event next -> do
-      H.modify (\state -> state { checkbox2Checked = not state.checkbox2Checked })
+      H.modify_ (\state -> state { checkbox2Checked = not state.checkbox2Checked })
       pure next
     OnRadio1Click event next -> do
-      H.modify (\state -> state { radio1Checked = not state.radio1Checked })
+      H.modify_ (\state -> state { radio1Checked = not state.radio1Checked })
       pure next
     OnRadio2Click event next -> do
-      H.modify (\state -> state { radio2Checked = not state.radio2Checked })
+      H.modify_ (\state -> state { radio2Checked = not state.radio2Checked })
       pure next
     OnRadio3Click event next -> do
-      H.modify (\state -> state { radio3Checked = not state.radio3Checked })
+      H.modify_ (\state -> state { radio3Checked = not state.radio3Checked })
       pure next

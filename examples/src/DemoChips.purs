@@ -2,7 +2,7 @@ module DemoChips where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..))
 --import Unsafe.Partial (unsafePartial)
 
@@ -35,12 +35,12 @@ data Input = Initialize State
 type Message = Void
 
 type DemoChipsHTML = H.ComponentHTML Query
-type DemoChipsDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoChipsDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init state = Initialize state
 
-demoChips :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoChips :: H.Component HH.HTML Query Input Message Aff
 demoChips =
   H.lifecycleComponent
     { initialState: initialState
@@ -145,7 +145,7 @@ demoChips =
   renderDemoSection :: ∀ p i. Array (HH.HTML p i) -> HH.HTML p i
   renderDemoSection body = Cell.el.cell3Col_ body
 
-  eval :: Query ~> DemoChipsDSL eff
+  eval :: Query ~> DemoChipsDSL
   eval = case _ of
     InitializeComponent next -> do
       pure next

@@ -2,7 +2,7 @@ module DemoButtons where
 
 import Prelude
 
-import Control.Monad.Aff (Aff, delay)
+import Effect.Aff (Aff, delay)
 import Data.Maybe (Maybe(..))
 import Data.Time.Duration (Milliseconds(..))
 
@@ -74,13 +74,13 @@ data ChildSlot
 derive instance eqChildSlot :: Eq ChildSlot
 derive instance ordChildSlot :: Ord ChildSlot
 
-type DemoButtonsHTML eff = H.ParentHTML Query Button.Query ChildSlot (Aff (HA.HalogenEffects eff))
-type DemoButtonsDSL eff = H.ParentDSL State Query Button.Query ChildSlot Message (Aff (HA.HalogenEffects eff))
+type DemoButtonsHTML = H.ParentHTML Query Button.Query ChildSlot Aff
+type DemoButtonsDSL = H.ParentDSL State Query Button.Query ChildSlot Message Aff
 
 init :: State -> Input
 init state = Initialize state
 
-demoButtons :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoButtons :: H.Component HH.HTML Query Input Message Aff
 demoButtons =
   H.lifecycleParentComponent
     { initialState: initialState
@@ -104,7 +104,7 @@ demoButtons =
   receiver :: Input -> Maybe (Query Unit)
   receiver (Initialize state) = Just $ H.action $ UpdateState state
 
-  render :: State -> DemoButtonsHTML eff
+  render :: State -> DemoButtonsHTML
   render state =
     HH.div
       [ HP.class_ Grid.cl.grid ]
@@ -421,7 +421,7 @@ demoButtons =
   renderDemoSection body =
     Cell.el.cell4Col_ body
 
-  eval :: Query ~> DemoButtonsDSL eff
+  eval :: Query ~> DemoButtonsDSL
   eval = case _ of
     InitializeComponent next -> do
       MDL.upgradeElementByRef (H.RefLabel "non-component-button")
@@ -435,7 +435,7 @@ demoButtons =
 
     OnClickDemoButtonMessage (Button.Clicked _) next -> do
       state <- H.get
-      H.modify (\state -> state { clickDemo { clickCount = state.clickDemo.clickCount + 1 } })
+      H.modify_ (\state -> state { clickDemo { clickCount = state.clickDemo.clickCount + 1 } })
       pure next
 
     OnIgnoredButtonMessage _ next ->
@@ -443,11 +443,11 @@ demoButtons =
 
     OnNonComponentButtonClick next -> do
       state <- H.get
-      H.modify (\state -> state { nonComponentDemo { isLoading = true } })
+      H.modify_ (\state -> state { nonComponentDemo { isLoading = true } })
       -- Make the spinner spin
       -- Another way to do this would be to always put the spinner in the HTML, activate it in InitializeComponent
       -- and just display: none it until it needs to be shown
-      H.liftEff $ MDL.upgradeElementsByClassName Spinner.cl.jsSpinner
+      H.liftEffect $ MDL.upgradeElementsByClassName Spinner.cl.jsSpinner
       H.liftAff $ delay $ Milliseconds 2000.0
-      H.modify (\state -> state { nonComponentDemo { isLoading = false } })
+      H.modify_ (\state -> state { nonComponentDemo { isLoading = false } })
       pure next

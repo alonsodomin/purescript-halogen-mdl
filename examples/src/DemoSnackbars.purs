@@ -2,7 +2,7 @@ module DemoSnackbars where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..))
 
 import Halogen as H
@@ -34,12 +34,12 @@ data Input
 type Message = Void
 
 type DemoSnackbarsHTML = H.ComponentHTML Query
-type DemoSnackbarsDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoSnackbarsDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init = Initialize
 
-demoSnackbars :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoSnackbars :: H.Component HH.HTML Query Input Message Aff
 demoSnackbars = H.lifecycleComponent
   { initialState: initialState
   , initializer: initializer
@@ -117,10 +117,10 @@ demoSnackbars = H.lifecycleComponent
           ]
       ]
 
-  eval :: Query ~> DemoSnackbarsDSL eff
+  eval :: Query ~> DemoSnackbarsDSL
   eval = case _ of
     InitializeComponent next -> do
-      H.liftEff $ MDL.upgradeElementsByClassNames [Snackbar.cl.jsSnackbar, Button.cl.jsButton]
+      H.liftEffect $ MDL.upgradeElementsByClassNames [Snackbar.cl.jsSnackbar, Button.cl.jsButton]
       pure next
     FinalizeComponent next -> do
       pure next
@@ -144,5 +144,5 @@ demoSnackbars = H.lifecycleComponent
       pure next
     OnSnackbar2Action next -> do
       --Snackbar.hideSnackbarByRef snackbar2Ref
-      H.modify (\state -> state { snackbar2ActionCount = state.snackbar2ActionCount + 1 })
+      H.modify_ (\state -> state { snackbar2ActionCount = state.snackbar2ActionCount + 1 })
       pure next

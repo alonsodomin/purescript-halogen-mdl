@@ -2,7 +2,7 @@ module DemoContainer where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Array ((..))
 import Data.Const (Const)
 import Data.Functor.Coproduct.Nested (type (<\/>))
@@ -202,13 +202,13 @@ cpDemoToggles =
   CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :> CP.cpR :>
   CP.cpR :> CP.cpR :> CP.cpR :> CP.cpL
 
-type DemoContainerHTML eff = H.ParentHTML Query ChildQuery ChildSlot (Aff (HA.HalogenEffects eff))
-type DemoContainerDSL eff = H.ParentDSL State Query ChildQuery ChildSlot Message (Aff (HA.HalogenEffects eff))
+type DemoContainerHTML = H.ParentHTML Query ChildQuery ChildSlot Aff
+type DemoContainerDSL = H.ParentDSL State Query ChildQuery ChildSlot Message Aff
 
 init :: State -> Input
 init state = Initialize state
 
-demoContainer :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoContainer :: H.Component HH.HTML Query Input Message Aff
 demoContainer =
   H.lifecycleParentComponent
     { initialState: initialState
@@ -238,7 +238,7 @@ demoContainer =
   receiver :: Input -> Maybe (Query Unit)
   receiver (Initialize state) = Just $ H.action $ UpdateState state
 
-  render :: State -> DemoContainerHTML eff
+  render :: State -> DemoContainerHTML
   render state =
     HH.div
       [ HP.class_ Layout.cl.layoutContainer ]
@@ -254,7 +254,7 @@ demoContainer =
           ]
       ]
 
-  renderLayoutHeader :: DemoContainerHTML eff
+  renderLayoutHeader :: DemoContainerHTML
   renderLayoutHeader =
     HH.header
       [ HP.classes [ Layout.cl.layoutHeader ] ]
@@ -272,13 +272,13 @@ demoContainer =
         ]
       ]
 
-  renderLayoutHeaderLink :: Basic.BasicLink -> DemoContainerHTML eff
+  renderLayoutHeaderLink :: Basic.BasicLink -> DemoContainerHTML
   renderLayoutHeaderLink link =
     HH.a
       [ HP.href link.href, HP.classes [ Navigation.cl.navigationLink ] ]
       [ HH.text link.text ]
 
-  renderLayoutDrawer :: DemoContainerHTML eff
+  renderLayoutDrawer :: DemoContainerHTML
   renderLayoutDrawer =
     HH.div
       [ HP.classes [ Layout.cl.layoutDrawer ]
@@ -306,7 +306,7 @@ demoContainer =
         ]
       ]
 
-  renderLayoutDrawerLink :: Route -> DemoContainerHTML eff
+  renderLayoutDrawerLink :: Route -> DemoContainerHTML
   renderLayoutDrawerLink route =
     HH.a
       [ HP.href $ Route.href route
@@ -315,7 +315,7 @@ demoContainer =
       ]
       [ HH.text $ Route.label route ]
 
-  renderLayoutContent :: State -> DemoContainerHTML eff
+  renderLayoutContent :: State -> DemoContainerHTML
   renderLayoutContent state =
     HH.div
       [ HP.classes [ Layout.cl.layoutContent ] ]
@@ -327,7 +327,7 @@ demoContainer =
         ]
       ]
 
-  renderPageContent :: State -> DemoContainerHTML eff
+  renderPageContent :: State -> DemoContainerHTML
   renderPageContent state = case state.currentRoute of
     Home ->
       HH.slot'
@@ -428,7 +428,7 @@ demoContainer =
         (DemoToggles.init)
         (HE.input OnDemoTogglesMessage)
 
-  renderMegaFooter :: DemoContainerHTML eff
+  renderMegaFooter :: DemoContainerHTML
   renderMegaFooter =
     MegaFooter.bl.megaFooter
       { middleSection:
@@ -439,7 +439,7 @@ demoContainer =
           }
       }
 
-  renderSpacer :: DemoContainerHTML eff
+  renderSpacer :: DemoContainerHTML
   renderSpacer =
     HH.div
       [ HP.class_ Layout.cl.layoutSpacer ]
@@ -461,7 +461,7 @@ demoContainer =
         ]
     }
 
-  eval :: Query ~> DemoContainerDSL eff
+  eval :: Query ~> DemoContainerDSL
   eval = case _ of
     InitializeComponent next -> do
       MDL.upgradeElementByRef layoutRef
@@ -472,12 +472,12 @@ demoContainer =
       H.put state
       pure next
     UpdateRoute route next -> do
-      H.modify (\state -> state { currentRoute = route })
+      H.modify_ (\state -> state { currentRoute = route })
       pure next
     OnNavClick next -> do
       maybeDrawer <- H.getHTMLElementRef drawerRef
       case maybeDrawer of
-        Just drawer -> H.liftEff $ Layout.toggleDrawer
+        Just drawer -> H.liftEffect $ Layout.toggleDrawer
         Nothing -> pure unit
       pure next
     OnDemoHomeMessage _ next -> do

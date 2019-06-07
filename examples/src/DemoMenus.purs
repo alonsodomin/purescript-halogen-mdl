@@ -1,7 +1,7 @@
 module DemoMenus where
 
 import Prelude
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..))
 
 import Halogen as H
@@ -30,12 +30,12 @@ data Input
 type Message = Void
 
 type DemoMenusHTML = H.ComponentHTML Query
-type DemoMenusDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoMenusDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init = Initialize
 
-demoMenus :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoMenus :: H.Component HH.HTML Query Input Message Aff
 demoMenus = H.lifecycleComponent
   { initialState: initialState
   , initializer: initializer
@@ -98,10 +98,10 @@ demoMenus = H.lifecycleComponent
           ]
       ]
 
-  eval :: Query ~> DemoMenusDSL eff
+  eval :: Query ~> DemoMenusDSL
   eval = case _ of
     InitializeComponent next -> do
-      H.liftEff $ MDL.upgradeElementsByClassNames [ Menu.cl.jsMenu, Button.cl.jsButton ]
+      H.liftEffect $ MDL.upgradeElementsByClassNames [ Menu.cl.jsMenu, Button.cl.jsButton ]
       pure next
     FinalizeComponent next -> do
       pure next

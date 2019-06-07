@@ -11,6 +11,7 @@ You can edit this file as you like.
     , "halogen-css"
     , "numbers"
     , "psci-support"
+    , "routing"
     , "web-dom"
     , "web-html"
     , "web-uievents"

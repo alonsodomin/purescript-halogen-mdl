@@ -2,7 +2,7 @@ module DemoTabs where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
+import Effect.Aff (Aff)
 import Data.Maybe (Maybe(..))
 
 import Halogen as H
@@ -25,9 +25,9 @@ data Tab
 derive instance eqTab :: Eq Tab
 
 instance showTab :: Show Tab where
-show About = "About"
-show Members = "Members"
-show Albums = "Albums"
+  show About = "About"
+  show Members = "Members"
+  show Albums = "Albums"
 
 type State = { currentTab :: Tab }
 
@@ -45,12 +45,12 @@ data Input = Initialize State
 type Message = Void
 
 type DemoTabsHTML = H.ComponentHTML Query
-type DemoTabsDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type DemoTabsDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init state = Initialize state
 
-demoTabs :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+demoTabs :: H.Component HH.HTML Query Input Message Aff
 demoTabs =
   H.lifecycleComponent
     { initialState: initialState
@@ -163,10 +163,10 @@ demoTabs =
   getActiveClass :: State -> Tab -> Array HH.ClassName
   getActiveClass state tab = if isCurrentTab state tab then [Tabs.cl.isActive] else []
 
-  eval :: Query ~> DemoTabsDSL eff
+  eval :: Query ~> DemoTabsDSL
   eval = case _ of
     InitializeComponent next -> do
-      H.liftEff $ MDL.upgradeElementsByClassNames [Tabs.cl.jsTabs, RE.cl.jsRippleEffect]
+      H.liftEffect $ MDL.upgradeElementsByClassNames [Tabs.cl.jsTabs, RE.cl.jsRippleEffect]
       pure next
     FinalizeComponent next -> do
       pure next
@@ -174,5 +174,5 @@ demoTabs =
       H.put state
       pure next
     UpdateCurrentTab tab next -> do
-      H.modify (_ { currentTab = tab })
+      H.modify_ (_ { currentTab = tab })
       pure next
