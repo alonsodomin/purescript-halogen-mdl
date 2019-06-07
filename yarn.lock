@@ -4458,10 +4458,10 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-purescript-psa@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/purescript-psa/-/purescript-psa-0.5.1.tgz#2e435eef22bd2f57eba182cbff120022ca0f265f"
-  integrity sha1-LkNe7yK9L1froYLL/xIAIsoPJl8=
+purescript-psa@^0.7.3:
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/purescript-psa/-/purescript-psa-0.7.3.tgz#0e1ff29cbd6a0fe2429717e7147d0c1cbd4760a9"
+  integrity sha512-qcnhruybTHVunhJqAuurOEWnz1BOOc/7mpcnyH5yxm5caYCejxq8GOE4ZNWbiPMeTlcG79qUPIOz7gx5OVmk2Q==
 
 purescript@^0.12.5:
   version "0.12.5"

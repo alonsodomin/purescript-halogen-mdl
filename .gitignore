@@ -9,3 +9,4 @@
 /.spago
 /.cache
 package-lock.json
+*.log

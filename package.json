@@ -8,10 +8,11 @@
     "test": "test"
   },
   "scripts": {
+    "install": "spago install",
     "build": "spago build",
-    "build:examples": "spago bundle-app --path examples/src/*.purs --main Main --to examples/dist/app.js",
+    "build:examples": "spago bundle-app --path examples/src/*.purs --main Main --to examples/dist/app.js && parcel build examples/dist/index.html",
     "watch:examples": "spago build --watch --path examples/src/**/*.purs",
-    "install": "spago install"
+    "start:examples": "spago bundle-app --path examples/src/*.purs --main Main --to examples/dist/app.js && parcel examples/dist/index.html"
   },
   "repository": {
     "type": "git",
@@ -30,7 +31,7 @@
   "homepage": "https://github.com/andywhite37/purescript-halogen-mdl#readme",
   "devDependencies": {
     "purescript": "^0.12.5",
-    "purescript-psa": "^0.5.1",
+    "purescript-psa": "^0.7.3",
     "spago": "^0.8.3",
     "parcel-bundler": "^1.12.3",
     "material-design-lite": "mdl#^1.3.0"
