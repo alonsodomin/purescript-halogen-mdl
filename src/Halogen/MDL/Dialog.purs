@@ -1,14 +1,12 @@
 module Halogen.MDL.Dialog where
 
 import Prelude
---import Control.Monad.Aff (Aff)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Class (class MonadEff)
+import Effect (Effect)
+import Effect.Class (class MonadEffect)
 --import Data.Const (Const)
 import Data.Maybe (Maybe(..))
 
-import DOM (DOM)
-import DOM.HTML.Types (HTMLElement())
+import Web.HTML (HTMLElement)
 
 import Halogen as H
 --import Halogen.Aff as HA
@@ -16,29 +14,29 @@ import Halogen.HTML as HH
 
 --import Halogen.MDL as MDL
 
-foreign import registerDialog :: ∀ e. HTMLElement -> Eff (dom :: DOM | e) Unit
-foreign import showDialog :: ∀ e. HTMLElement -> Eff (dom :: DOM | e) Unit
-foreign import close :: ∀ e. HTMLElement -> Eff (dom :: DOM | e) Unit
+foreign import registerDialog :: HTMLElement -> Effect Unit
+foreign import showDialog :: HTMLElement -> Effect Unit
+foreign import close :: HTMLElement -> Effect Unit
 
-registerDialogByRef :: forall e s f g p o m. MonadEff (dom :: DOM | e) m => H.RefLabel -> H.HalogenM s f g p o m Unit
+registerDialogByRef :: forall s f g p o m. MonadEffect m => H.RefLabel -> H.HalogenM s f g p o m Unit
 registerDialogByRef ref = do
   element <- H.getHTMLElementRef ref
   case element of
-    Just element -> H.liftEff $ registerDialog element
+    Just element -> H.liftEffect $ registerDialog element
     Nothing -> pure unit
 
-showDialogByRef :: forall e s f g p o m. MonadEff (dom :: DOM | e) m => H.RefLabel -> H.HalogenM s f g p o m Unit
+showDialogByRef :: forall s f g p o m. MonadEffect m => H.RefLabel -> H.HalogenM s f g p o m Unit
 showDialogByRef ref = do
   element <- H.getHTMLElementRef ref
   case element of
-    Just element -> H.liftEff $ showDialog element
+    Just element -> H.liftEffect $ showDialog element
     Nothing -> pure unit
 
-closeByRef :: forall e s f g p o m. MonadEff (dom :: DOM | e) m => H.RefLabel -> H.HalogenM s f g p o m Unit
+closeByRef :: forall s f g p o m. MonadEffect m => H.RefLabel -> H.HalogenM s f g p o m Unit
 closeByRef ref = do
   element <- H.getHTMLElementRef ref
   case element of
-    Just element -> H.liftEff $ close element
+    Just element -> H.liftEffect $ close element
     Nothing -> pure unit
 
 cl ::

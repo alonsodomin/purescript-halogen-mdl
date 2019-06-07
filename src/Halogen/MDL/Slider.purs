@@ -1,15 +1,14 @@
 module Halogen.MDL.Slider where
 
 import Prelude
-import Control.Monad.Aff (Aff)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Class (class MonadEff)
+import Effect.Aff (Aff)
+import Effect (Effect)
+import Effect.Class (class MonadEffect)
 import Data.Int (round)
 import Data.Maybe (Maybe(..))
 import Data.Number (fromString)
 
-import DOM (DOM)
-import DOM.HTML.Types (HTMLElement())
+import Web.HTML (HTMLElement)
 import CSS as C
 
 import Halogen as H
@@ -26,13 +25,13 @@ import Halogen.HTML.Properties as HP
 -- This means we're not using the MaterialSlider.change function at all,
 -- but we'll still FFI and expose it
 
-foreign import change :: ∀ eff. HTMLElement -> Number -> Eff (dom :: DOM | eff) Unit
+foreign import change :: HTMLElement -> Number -> Effect Unit
 
-changeByRef :: forall e s f g p o m. MonadEff (dom :: DOM | e) m => H.RefLabel -> Number -> H.HalogenM s f g p o m Unit
+changeByRef :: forall s f g p o m. MonadEffect m => H.RefLabel -> Number -> H.HalogenM s f g p o m Unit
 changeByRef ref value = do
   maybeElement <- H.getHTMLElementRef ref
   case maybeElement of
-    Just element -> H.liftEff $ change element value
+    Just element -> H.liftEffect $ change element value
     Nothing -> pure unit
 
 cl ::
@@ -84,12 +83,12 @@ data Message
   = ValueChanged Number
 
 type SliderHTML = H.ComponentHTML Query
-type SliderDSL eff = H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+type SliderDSL = H.ComponentDSL State Query Message Aff
 
 init :: State -> Input
 init = Initialize
 
-slider :: ∀ eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+slider :: H.Component HH.HTML Query Input Message Aff
 slider = H.lifecycleComponent
   { initialState: initialState
   , initializer: initializer
@@ -176,7 +175,7 @@ slider = H.lifecycleComponent
     -- Pending: https://github.com/slamdata/purescript-css/pull/64
     round (1000.0 * getUpperFraction state)
 
-  eval :: Query ~> SliderDSL eff
+  eval :: Query ~> SliderDSL
   eval = case _ of
     InitializeComponent next -> do
       pure next
@@ -195,7 +194,7 @@ slider = H.lifecycleComponent
       let oldValue = state.value
       case fromString value of
         Just value | oldValue /= value -> do
-          H.modify (_ { value = value })
+          H.modify_ (_ { value = value })
           H.raise $ ValueChanged value
         _ -> pure unit
       pure next
@@ -204,7 +203,7 @@ slider = H.lifecycleComponent
       let oldValue = state.value
       if oldValue /= value
         then do
-          H.modify (_ { value = value })
+          H.modify_ (_ { value = value })
           H.raise $ ValueChanged value
         else
           pure unit

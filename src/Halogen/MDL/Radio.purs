@@ -6,7 +6,7 @@ import Data.Array (mapWithIndex)
 import Data.Maybe (Maybe)
 
 import CSS as C
-import DOM.Event.Types (MouseEvent)
+import Web.UIEvent.MouseEvent (MouseEvent)
 
 import Halogen.HTML as HH
 import Halogen.HTML.CSS as HC

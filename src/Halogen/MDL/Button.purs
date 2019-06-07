@@ -2,8 +2,8 @@ module Halogen.MDL.Button where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
-import DOM.Event.Types (MouseEvent)
+import Effect.Aff (Aff)
+import Web.UIEvent.MouseEvent (MouseEvent)
 import Data.Maybe (Maybe(..))
 
 import Halogen as H
@@ -96,7 +96,7 @@ init :: Props -> Input
 init props = Initialize $ State props
 
 -- MDL button component
-button :: ∀ i eff. H.Component HH.HTML Query Input Message (Aff (HA.HalogenEffects eff))
+button :: H.Component HH.HTML Query Input Message Aff
 button =
   -- TODO: make this a lifecycleParentComponent so the content of the button can be provided as another component?
   H.lifecycleComponent
@@ -171,7 +171,7 @@ button =
          then [RippleEffect.cl.jsRippleEffect]
          else []
 
-  eval :: Query ~> H.ComponentDSL State Query Message (Aff (HA.HalogenEffects eff))
+  eval :: Query ~> H.ComponentDSL State Query Message Aff
   eval = case _ of
     -- Initialize the button (i.e. MDL upgradeElement to get javascript effects, like ripple)
     InitializeComponent next -> do

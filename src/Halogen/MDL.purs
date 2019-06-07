@@ -1,48 +1,48 @@
 module Halogen.MDL where
 
 import Prelude
-import Control.Monad.Eff (Eff())
-import Control.Monad.Eff.Class (class MonadEff)
+import Effect (Effect)
+import Effect.Class (class MonadEffect)
 import Data.Maybe (Maybe(..))
 import Data.Traversable (traverse)
-import DOM (DOM())
-import DOM.HTML.Types (HTMLElement())
+
+import Web.HTML (HTMLElement)
 
 import Halogen as H
 import Halogen.HTML as HH
 
 -- Upgrade element to add MDL behaviors
-foreign import upgradeElement :: ∀ e. HTMLElement -> Eff (dom :: DOM | e) Unit
+foreign import upgradeElement :: HTMLElement -> Effect Unit
 
 -- Upgrade elements by CSS selector (via querySelector)
-foreign import upgradeElementsBySelector :: ∀ e. String -> Eff (dom :: DOM | e) Unit
+foreign import upgradeElementsBySelector :: String -> Effect Unit
 
 -- Upgrade elements by CSS selectors (via querySelector)
-foreign import upgradeElementsBySelectors :: ∀ e. Array String -> Eff (dom :: DOM | e) Unit
+foreign import upgradeElementsBySelectors :: Array String -> Effect Unit
 
 -- Upgrade elements by class
-upgradeElementsByClassName :: ∀ e. HH.ClassName -> Eff (dom :: DOM | e) Unit
+upgradeElementsByClassName :: HH.ClassName -> Effect Unit
 upgradeElementsByClassName (HH.ClassName className) = upgradeElementsBySelector $ "." <> className
 
 -- Upgrade elements by classes
-upgradeElementsByClassNames :: ∀ e. Array (HH.ClassName) -> Eff (dom :: DOM | e) Unit
+upgradeElementsByClassNames :: Array (HH.ClassName) -> Effect Unit
 upgradeElementsByClassNames classNames = void $ traverse upgradeElementsByClassName classNames
 
 -- Upgrade element by Halogen.RefLabel
-upgradeElementByRef :: forall e s f g p o m. MonadEff (dom :: DOM | e) m => H.RefLabel -> H.HalogenM s f g p o m Unit
+upgradeElementByRef :: forall s f g p o m. MonadEffect m => H.RefLabel -> H.HalogenM s f g p o m Unit
 upgradeElementByRef ref = do
   element <- H.getHTMLElementRef ref
   case element of
-    Just element -> H.liftEff $ upgradeElement element
+    Just element -> H.liftEffect $ upgradeElement element
     Nothing -> pure unit
 
 -- Upgrade elements by Halogen.RefLabels
-upgradeElementsByRefs :: ∀ e s f g p o m. MonadEff (dom :: DOM | e) m => Array H.RefLabel -> H.HalogenM s f g p o m Unit
+upgradeElementsByRefs :: ∀ s f g p o m. MonadEffect m => Array H.RefLabel -> H.HalogenM s f g p o m Unit
 upgradeElementsByRefs refs = void $ traverse upgradeElementByRef refs
 
 -- Remove class from an element
 -- Hacky solution to removing classes added outside of our rendering control
-foreign import removeClass :: ∀ e. HTMLElement -> String -> Eff (dom :: DOM | e) Unit
+foreign import removeClass :: HTMLElement -> String -> Effect Unit
 
 attr ::
   { disabled :: HH.AttrName

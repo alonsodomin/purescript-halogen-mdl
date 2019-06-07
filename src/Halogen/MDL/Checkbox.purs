@@ -3,7 +3,7 @@ module Halogen.MDL.Checkbox where
 import Prelude
 import Data.Maybe (Maybe)
 
-import DOM.Event.Types (MouseEvent)
+import Web.UIEvent.MouseEvent (MouseEvent)
 
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE

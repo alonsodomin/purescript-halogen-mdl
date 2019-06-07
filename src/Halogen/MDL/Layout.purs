@@ -1,12 +1,11 @@
 module Halogen.MDL.Layout where
 
 import Prelude
-import Control.Monad.Eff (Eff)
-import DOM (DOM)
+import Effect (Effect)
 
 import Halogen.HTML as HH
 
-foreign import toggleDrawer :: ∀ e. Eff (dom :: DOM | e) Unit
+foreign import toggleDrawer :: Effect Unit
 
 cl ::
   { layout :: HH.ClassName
